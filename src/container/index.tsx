@@ -1,5 +1,5 @@
 import Home from './Home/Home';
-import BuyerHome from './Buyer/Home/Home';
+import Store from './Buyer/Store/Store';
 import SellerHome from './Seller/Home/Home';
 import BuyerLogin from './Buyer/Login/Login';
 import SellerLogin from './Seller/Login/Login';
@@ -9,10 +9,11 @@ import ProductForm from './Seller/ProductForm/ProductForm';
 import ProductDetails from './universal/ProductDetails/ProductDetails';
 import Orders from './Seller/Orders/Orders';
 import Map from './universal/Map/Map';
+import Cart from './Buyer/Cart/Cart';
 
 export {
   Home,
-  BuyerHome,
+  Store,
   SellerHome,
   BuyerLogin,
   SellerLogin,
@@ -22,4 +23,5 @@ export {
   ProductDetails,
   Orders,
   Map,
+  Cart,
 };

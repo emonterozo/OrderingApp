@@ -10,6 +10,7 @@ interface IAppBar {
   navigation?: any;
   isLogoutVisible?: boolean;
   right?: any;
+  isCartVisible?: boolean;
 }
 
 const AppHeader = ({
@@ -18,6 +19,7 @@ const AppHeader = ({
   navigation,
   isLogoutVisible,
   right,
+  isCartVisible,
 }: IAppBar) => {
   const {setUserType, setUser} = useContext(GlobalContext);
   return (
@@ -45,6 +47,19 @@ const AppHeader = ({
           {title}
         </Text>
       </HStack>
+      {isCartVisible && (
+        <IconButton
+          icon={
+            <Icon
+              as={MaterialCommunityIcons}
+              name="cart"
+              size="lg"
+              color="white"
+            />
+          }
+          onPress={() => navigation.navigate('Cart')}
+        />
+      )}
       {isLogoutVisible && (
         <IconButton
           icon={

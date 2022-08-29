@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {
   Box,
   Button,
@@ -14,39 +14,49 @@ import {
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import PhoneInput from 'react-native-phone-number-input';
 
 const schema = Yup.object().shape({
   name: Yup.string()
     .min(3, 'Name is too short!')
     .required('This field is required'),
-  email: Yup.string()
+  number: Yup.string()
     .email('Invalid email address')
-    .required('This field is required'),
-  password: Yup.string()
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
-      'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character',
-    )
-    .required('This field is required'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
     .required('This field is required'),
 });
 
 const initial = {
   name: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
+  number: '',
 };
 
 const Register = ({navigation}) => {
+  const [value, setValue] = useState('');
+  const [formattedValue, setFormattedValue] = useState('');
+  const [valid, setValid] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const phoneInput = useRef<PhoneInput>(null);
   return (
     <Box flex={1} justifyContent="center" alignItems="center">
       <VStack w="90%" space={1} marginBottom="10">
         <Heading color="muted.800">Let's Get Started!</Heading>
         <Text color="muted.400">Create an account</Text>
       </VStack>
+      <PhoneInput
+        ref={phoneInput}
+        defaultValue={value}
+        defaultCode="PH"
+        layout="first"
+        onChangeText={text => {
+          setValue(text);
+        }}
+        onChangeFormattedText={text => {
+          setFormattedValue(text);
+        }}
+        //withDarkTheme
+        //withShadow
+        //autoFocus
+      />
       <Formik
         initialValues={initial}
         onSubmit={() => {}}
@@ -87,61 +97,15 @@ const Register = ({navigation}) => {
                       ml="2"
                     />
                   }
-                  onChangeText={handleChange('email')}
-                  value={values.email}
+                  onChangeText={handleChange('number')}
+                  value={values.number}
                   variant="rounded"
                   placeholder="Email"
                 />
                 <FormControl.ErrorMessage
                   ml="3"
                   leftIcon={<WarningOutlineIcon size="xs" />}>
-                  {errors.email}
-                </FormControl.ErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={'password' in errors}>
-                <Input
-                  InputLeftElement={
-                    <Icon
-                      as={MaterialCommunityIcons}
-                      name="lock-outline"
-                      color="muted.400"
-                      size={5}
-                      ml="2"
-                    />
-                  }
-                  onChangeText={handleChange('password')}
-                  value={values.password}
-                  type="password"
-                  variant="rounded"
-                  placeholder="Password"
-                />
-                <FormControl.ErrorMessage
-                  ml="3"
-                  leftIcon={<WarningOutlineIcon size="xs" />}>
-                  {errors.password}
-                </FormControl.ErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={'confirmPassword' in errors}>
-                <Input
-                  InputLeftElement={
-                    <Icon
-                      as={MaterialCommunityIcons}
-                      name="lock-outline"
-                      color="muted.400"
-                      size={5}
-                      ml="2"
-                    />
-                  }
-                  onChangeText={handleChange('confirmPassword')}
-                  value={values.confirmPassword}
-                  type="password"
-                  variant="rounded"
-                  placeholder="Confirm Password"
-                />
-                <FormControl.ErrorMessage
-                  ml="3"
-                  leftIcon={<WarningOutlineIcon size="xs" />}>
-                  {errors.confirmPassword}
+                  {errors.number}
                 </FormControl.ErrorMessage>
               </FormControl>
             </VStack>
@@ -150,7 +114,10 @@ const Register = ({navigation}) => {
               size="lg"
               marginY={10}
               w="60%"
-              onPress={handleSubmit}>
+              onPress={() => {
+                const checkValid = phoneInput.current?.isValidNumber(value);
+                console.log(checkValid);
+              }}>
               CREATE
             </Button>
           </>

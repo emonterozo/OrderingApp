@@ -28,6 +28,24 @@ export const removeUser = async () => {
   }
 };
 
+export const storeCart = async (data: any) => {
+  try {
+    const jsonValue = JSON.stringify(data);
+    await AsyncStorage.setItem(ASYNC_STORAGE_KEY_CART, jsonValue);
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getCart = async () => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(ASYNC_STORAGE_KEY_CART);
+    return jsonValue !== null ? JSON.parse(jsonValue) : [];
+  } catch (error) {
+    return error;
+  }
+};
+
 export const onBackPress = callback => {
   BackHandler.addEventListener('hardwareBackPress', callback);
   return () => {

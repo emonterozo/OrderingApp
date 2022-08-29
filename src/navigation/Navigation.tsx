@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import {
   Home,
-  BuyerHome,
+  Store,
   SellerHome,
   BuyerLogin,
   SellerLogin,
@@ -11,6 +11,7 @@ import {
   ProductDetails,
   Orders,
   Map,
+  Cart,
 } from '../container';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -37,7 +38,10 @@ const BuyerAuthScreen = () => {
 const BuyerScreen = () => {
   return (
     <BuyerStack.Navigator screenOptions={{headerShown: false}}>
-      <BuyerStack.Screen name="BuyerHome" component={BuyerHome} />
+      <BuyerStack.Screen name="Map" component={Map} />
+      <BuyerStack.Screen name="Store" component={Store} />
+      <SellerStack.Screen name="ProductDetails" component={ProductDetails} />
+      <SellerStack.Screen name="Cart" component={Cart} />
     </BuyerStack.Navigator>
   );
 };

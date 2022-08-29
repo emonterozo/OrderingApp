@@ -22,7 +22,7 @@ import {Dimensions} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GlobalContext from '../../../config/context';
 import {isEqual} from 'lodash';
-import {USER_SELLER} from '../../../utils/constant';
+import {USER_BUYER, USER_SELLER} from '../../../utils/constant';
 
 export const SLIDER_WIDTH = Dimensions.get('window').width + 30;
 export const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
@@ -32,7 +32,7 @@ interface IItem {
 }
 
 const ProductDetails = ({navigation, route}: any) => {
-  const {userType} = useContext(GlobalContext);
+  const {userType, cart, setCart} = useContext(GlobalContext);
   const {product} = route.params;
   const isCarousel = useRef(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -82,7 +82,12 @@ const ProductDetails = ({navigation, route}: any) => {
 
   return (
     <Box flex={1}>
-      <AppHeader hasBack title="Product Details" navigation={navigation} />
+      <AppHeader
+        isCartVisible={isEqual(userType, USER_BUYER)}
+        hasBack
+        title="Product Details"
+        navigation={navigation}
+      />
       <Box my="2" alignItems="center">
         <Carousel
           ref={isCarousel}

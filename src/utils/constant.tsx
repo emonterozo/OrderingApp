@@ -1,6 +1,7 @@
 export const USER_BUYER = 'USER_BUYER';
 export const USER_SELLER = 'USER_SELLER';
-export const ASYNC_STORAGE_KEY_USER = '';
+export const ASYNC_STORAGE_KEY_USER = 'ASYNC_STORAGE_KEY_USER';
+export const ASYNC_STORAGE_KEY_CART = 'ASYNC_STORAGE_KEY_CART';
 export const LOADING_TEXT = 'Please wait';
 export const STATUS = {
   PROCESSING: 'processing',
