@@ -4,7 +4,7 @@ import {Box, Button, VStack} from 'native-base';
 import GlobalContext from '../../config/context';
 import {USER_BUYER, USER_SELLER} from '../../utils/constant';
 
-const Home = ({navigation}) => {
+const Home = () => {
   const {setUserType} = useContext(GlobalContext);
 
   return (

@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler';
 import React, {useEffect, useState} from 'react';
 import messaging from '@react-native-firebase/messaging';
-
 import {NativeBaseProvider} from 'native-base';
+
 import GlobalContext from './src/config/context';
 import Navigation from './src/navigation/Navigation';
 import {sendLocalNotification} from './src/utils/utils';

@@ -1,22 +1,13 @@
-import React, {
-  useState,
-  useLayoutEffect,
-  useCallback,
-  useContext,
-  useEffect,
-} from 'react';
+import React, {useState, useLayoutEffect, useCallback, useContext} from 'react';
 import {GiftedChat} from 'react-native-gifted-chat';
-import {xor, isEqual} from 'lodash';
-
-import auth from '@react-native-firebase/auth';
+import {isEqual} from 'lodash';
 import firestore from '@react-native-firebase/firestore';
 
 import GlobalContext from '../../../config/context';
 import {AppHeader} from '../../../components';
 import {USER_BUYER, USER_SELLER} from '../../../utils/constant';
-import {Box} from 'native-base';
 
-const Chat = ({route, navigation}) => {
+const Chat = ({route, navigation}: any) => {
   const {user, userType} = useContext(GlobalContext);
   const toUser = route.params?.toUser;
 
@@ -36,7 +27,6 @@ const Chat = ({route, navigation}) => {
           documentSnapshot.forEach(doc => {
             messagesData.push(doc.data());
           });
-          console.log('userget', messagesData);
 
           let messagesDataHolder: any[] = [];
           await Promise.all(
@@ -89,7 +79,6 @@ const Chat = ({route, navigation}) => {
             }
           });
 
-          //console.log("messagesDatadsdsadas", messagesData);
           if (messagesData.length > 0) {
             setConversationId(messagesData[0].id);
           }
@@ -99,14 +88,13 @@ const Chat = ({route, navigation}) => {
 
   const onSend = useCallback(
     (message = []) => {
-      //console.log(message);
       setMessages(previousMessages =>
         GiftedChat.append(previousMessages, message),
       );
-      const {_id, createdAt, text} = message[0];
+      const {createdAt, text} = message[0];
 
       if (conversationId) {
-        console.log('reply to  message');
+        // conversation started
         firestore()
           .collection(`messages/${conversationId}/chats`)
           .add({
@@ -122,8 +110,8 @@ const Chat = ({route, navigation}) => {
             });
           });
       } else {
+        // new conversation
         if (toUser) {
-          console.log('new message');
           firestore()
             .collection('messages')
             .add({
@@ -138,7 +126,6 @@ const Chat = ({route, navigation}) => {
               conversation_between: [user.id, toUser],
             })
             .then(dofRef => {
-              console.log(dofRef.id);
               setConversationId(dofRef.id);
               firestore().collection(`messages/${dofRef.id}/chats`).add({
                 user: user.id,
@@ -150,6 +137,7 @@ const Chat = ({route, navigation}) => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [conversationId, toUser],
   );
 

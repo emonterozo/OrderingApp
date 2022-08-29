@@ -16,8 +16,8 @@ import * as Yup from 'yup';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
-
 import {isEqual} from 'lodash';
+
 import {AppHeader} from '../../../components';
 import {FileImagePlus} from '../../../assets/svg';
 import GlobalContext from '../../../config/context';
@@ -74,6 +74,7 @@ const ProductForm = ({navigation, route}: any) => {
   };
 
   const submit = async (values: IValues) => {
+    // return valid images for upload
     const imagesToUpload = images.filter(
       image => image.substring(0, 8) === 'file:///',
     );
@@ -81,6 +82,7 @@ const ProductForm = ({navigation, route}: any) => {
     if (imageError === '') {
       setIsLoading(true);
       if (title.includes('Add')) {
+        // add new product
         const imagesUrl = await uploadImages(imagesToUpload);
         firestore()
           .collection('products')
@@ -93,6 +95,7 @@ const ProductForm = ({navigation, route}: any) => {
             navigation.navigate('SellerHome');
           });
       } else {
+        // update product
         let newImages = product.images;
 
         // will upload new images
@@ -104,6 +107,7 @@ const ProductForm = ({navigation, route}: any) => {
             imagesUrl?.length < product.images.length ||
             imagesUrl?.length === product.images.length
           ) {
+            // will get images does not change
             const retainImages = images.filter(
               image => image.substring(0, 8) !== 'file:///' && image !== '',
             );

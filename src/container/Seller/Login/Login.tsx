@@ -13,9 +13,9 @@ import firestore from '@react-native-firebase/firestore';
 import {isEmpty, isEqual} from 'lodash';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import messaging from '@react-native-firebase/messaging';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {onBackPress, storeUser} from '../../../utils/utils';
+
+import {storeUser} from '../../../utils/utils';
 import GlobalContext from '../../../config/context';
 import {LOADING_TEXT, PROVIDER} from '../../../utils/constant';
 import {WEB_CLIENT_ID} from '../../../config/config';
@@ -24,28 +24,26 @@ GoogleSignin.configure({
   webClientId: WEB_CLIENT_ID,
 });
 
-const Login = ({navigation}) => {
-  const {setUserType, userType, setUser} = useContext(GlobalContext);
+const Login = ({navigation}: any) => {
+  const {userType, setUser} = useContext(GlobalContext);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    onBackPress(() => setUserType(''));
-  }, []);
 
   const googleLogin = async () => {
     try {
       const token = await messaging().getToken();
       const userInfo = await GoogleSignin.signIn();
 
+      // will check if email exist
       firestore()
         .collection('sellers')
         .where('email', '==', userInfo.user.email)
         .get()
         .then(querySnapshot => {
           if (querySnapshot.size === 0) {
+            // email not exist
             const data = {
               email: userInfo.user.email,
               name: `${userInfo.user.givenName} ${userInfo.user.familyName}`,
@@ -67,6 +65,7 @@ const Login = ({navigation}) => {
                 storeUser(user);
               });
           } else {
+            // email already exist
             querySnapshot.forEach(documentSnapshot => {
               const user = {
                 ...documentSnapshot.data(),
@@ -74,7 +73,7 @@ const Login = ({navigation}) => {
                 id: documentSnapshot.id,
                 userType: userType,
               };
-              updateToken(user.id, token);
+              updateFCMToken(user.id, token);
               setUser(user);
               storeUser(user);
             });
@@ -88,13 +87,17 @@ const Login = ({navigation}) => {
   const login = () => {
     if (!isEmpty(email) && !isEmpty(password)) {
       setIsLoading(true);
+
+      // will check if email exist
       firestore()
         .collection('sellers')
         .where('email', '==', email)
         .get()
         .then(async querySnapshot => {
           setIsLoading(false);
+
           if (querySnapshot.size > 0) {
+            // email already exist
             const token = await messaging().getToken();
             querySnapshot.forEach(documentSnapshot => {
               const user = {
@@ -104,8 +107,7 @@ const Login = ({navigation}) => {
                 userType: userType,
               };
               if (isEqual(user.password, password)) {
-                console.log(user);
-                updateToken(user.id, token);
+                updateFCMToken(user.id, token);
                 setUser(user);
                 storeUser(user);
               } else {
@@ -119,16 +121,10 @@ const Login = ({navigation}) => {
     }
   };
 
-  const updateToken = async (id, token) => {
-    firestore()
-      .collection('sellers')
-      .doc(id)
-      .update({
-        fcm_token: token,
-      })
-      .then(() => {
-        console.log('updated token');
-      });
+  const updateFCMToken = async (id: string, token: string) => {
+    firestore().collection('sellers').doc(id).update({
+      fcm_token: token,
+    });
   };
 
   return (

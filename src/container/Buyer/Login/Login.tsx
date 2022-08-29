@@ -1,55 +1,39 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {
-  Box,
-  Button,
-  Center,
-  Heading,
-  HStack,
-  Icon,
-  Input,
-  Text,
-  VStack,
-} from 'native-base';
+import {Box, Button, Heading, Text, VStack} from 'native-base';
 import auth from '@react-native-firebase/auth';
 import PhoneInput from 'react-native-phone-number-input';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
-
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import GlobalContext from '../../../config/context';
-import {onBackPress, storeUser} from '../../../utils/utils';
 import {StyleSheet} from 'react-native';
 
-const Login = ({navigation}) => {
-  const {setUserType, userType, setUser} = useContext(GlobalContext);
+import GlobalContext from '../../../config/context';
+import {storeUser} from '../../../utils/utils';
+
+const Login = () => {
+  const {userType, setUser} = useContext(GlobalContext);
   const [value, setValue] = useState('');
-  const [formattedValue, setFormattedValue] = useState('+639122011101');
+  const [formattedValue, setFormattedValue] = useState('');
   const [error, setError] = useState('');
-  const [isOtpScreen, setIsOtpScreen] = useState(true);
+  const [isOtpScreen, setIsOtpScreen] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [code, setCode] = useState('');
   const phoneInput = useRef<PhoneInput>(null);
 
-  useEffect(() => {
-    onBackPress(() => setUserType(''));
-  }, []);
-
   // Handle the button press
-  const signInWithPhoneNumber = async phoneNumber => {
+  const signInWithPhoneNumber = async (phoneNumber: string) => {
     const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
     setConfirm(confirmation);
   };
 
   const confirmCode = async () => {
     try {
-      //2 na ako
       await confirm.confirm(code);
-      console.log('valid get firestore');
-      //getUser();
-    } catch (error) {
       getUser();
-      console.log('Invalid code.', formattedValue);
+      // eslint-disable-next-line no-catch-shadow
+    } catch {
+      // invalid code
+      console.log('Invalid code.');
     }
   };
 
@@ -112,9 +96,8 @@ const Login = ({navigation}) => {
         setIsOtpScreen(true);
       }
     } else {
-      console.log('verify otp', code);
-      //confirmCode();
-      getUser();
+      // verify OTP
+      confirmCode();
     }
   };
 

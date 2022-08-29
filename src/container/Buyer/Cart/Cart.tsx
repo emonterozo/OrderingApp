@@ -27,6 +27,7 @@ import {
 } from '../../../utils/utils';
 import {AppHeader} from '../../../components';
 import {STATUS} from '../../../utils/constant';
+import {ICart} from '../../types/types';
 
 const Cart = ({navigation}: any) => {
   const {cart, setCart, user} = useContext(GlobalContext);
@@ -162,7 +163,6 @@ const Cart = ({navigation}: any) => {
         })
         .then(async () => {
           count = index;
-          console.log('User added!', count);
           if (count === cart.length - 1) {
             setCart([]);
             storeCart([]);

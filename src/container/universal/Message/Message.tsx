@@ -1,29 +1,39 @@
-import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
-import {View, StyleSheet, FlatList} from 'react-native';
-import auth from '@react-native-firebase/auth';
+import React, {useContext, useEffect, useState} from 'react';
+import {StyleSheet, FlatList} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
+import {Avatar, Box, Center, HStack, Pressable, Text} from 'native-base';
 
 import {CommentsRegular} from '../../../assets/svg';
 import GlobalContext from '../../../config/context';
-import {Avatar, Box, Center, HStack, Pressable, Text} from 'native-base';
 import {AppHeader} from '../../../components';
-import {isEqual} from 'lodash';
-import {USER_BUYER} from '../../../utils/constant';
 
 interface IMessage {
-  navigation: any;
+  conversation_between: string[];
+  from: string;
+  fromUser: string;
+  from_user_type: string;
+  id: string;
+  last_message: string;
+  timestamp: any;
+  to: string;
+  toUser: string;
+  to_user_type: string;
 }
 
-const Message = ({navigation}: IMessage) => {
+interface IItem {
+  item: IMessage;
+}
+
+const Message = ({navigation}: any) => {
   const {user} = useContext(GlobalContext);
-  const [conversation, setConversation] = useState([]);
+  const [conversation, setConversation] = useState<IMessage[]>([]);
 
   useEffect(() => {
     const subscriber = firestore()
       .collection('messages')
       .where('conversation_between', 'array-contains', user.id)
-      //.orderBy('timestamp', 'desc')
+      .orderBy('timestamp', 'desc')
       .onSnapshot(async querySnapshot => {
         let messagesData: any[] = [];
 
@@ -34,7 +44,7 @@ const Message = ({navigation}: IMessage) => {
           });
         });
 
-        // will get information of the commentator
+        // will get information of the user's
         let messageDataHolder: any[] = [];
         await Promise.all(
           messagesData.map(async item => {
@@ -56,17 +66,15 @@ const Message = ({navigation}: IMessage) => {
           }),
         );
 
-        // buyer - 63VVppjQxSBUL2aWOJ4l
-        // seller - 8UqnUXiUaDycVYJyMyNK
-        //console.log('ddd', JSON.stringify(messageDataHolder));
         setConversation(messageDataHolder);
       });
 
     // Stop listening for updates when no longer required
     return () => subscriber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderCard = ({item}: any) => {
+  const renderCard = ({item}: IItem) => {
     const {from, fromUser, toUser, last_message, timestamp} = item;
     const interval = new Date(timestamp.seconds * 1000);
 
@@ -95,7 +103,7 @@ const Message = ({navigation}: IMessage) => {
     );
   };
   return (
-    <Box>
+    <Box flex={1}>
       <AppHeader hasBack title="Messages" navigation={navigation} />
       <FlatList
         contentContainerStyle={conversation.length <= 0 && styles.empty}
@@ -114,25 +122,6 @@ const Message = ({navigation}: IMessage) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    padding: 10,
-  },
-  name: {
-    fontWeight: 'bold',
-  },
-  message: {
-    flex: 2,
-    marginHorizontal: 20,
-  },
-  time: {
-    flex: 1,
-  },
   empty: {
     height: '100%',
     justifyContent: 'center',

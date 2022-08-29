@@ -14,16 +14,16 @@ import {
   Divider,
   VStack,
 } from 'native-base';
-
-import {AppHeader} from '../../../components';
-
 import Carousel from 'react-native-snap-carousel';
 import {Dimensions} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import GlobalContext from '../../../config/context';
 import {isEqual} from 'lodash';
+
+import GlobalContext from '../../../config/context';
+import {AppHeader} from '../../../components';
 import {USER_BUYER, USER_SELLER} from '../../../utils/constant';
 import {numberWithCommas} from '../../../utils/utils';
+import {ICart} from '../../types/types';
 
 export const SLIDER_WIDTH = Dimensions.get('window').width + 30;
 export const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
@@ -56,10 +56,10 @@ const ProductDetails = ({navigation, route}: any) => {
 
   const handlePressAdd = () => {
     let holder = cart;
-    const productExist = cart.filter(item => item.id === product.id);
+    const productExist = cart.filter((item: ICart) => item.id === product.id);
 
     if (productExist.length) {
-      let updatedCart = cart.map(item => {
+      let updatedCart = cart.map((item: ICart) => {
         if (item.id === product.id) {
           return {
             ...item,

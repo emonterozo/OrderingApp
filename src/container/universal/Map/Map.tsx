@@ -12,30 +12,42 @@ import {
   Modal,
   FormControl,
 } from 'native-base';
+import {Dimensions, StyleSheet} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import firestore from '@react-native-firebase/firestore';
+import {useIsFocused} from '@react-navigation/native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {isEmpty, isEqual, isNull} from 'lodash';
 
 import {AppHeader} from '../../../components';
-import {isEmpty, isEqual, isNull} from 'lodash';
 import {REGION, USER_BUYER, USER_SELLER} from '../../../utils/constant';
-import {Dimensions, StyleSheet} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {removeUser, storeUser} from '../../../utils/utils';
+import {storeUser} from '../../../utils/utils';
 import GlobalContext from '../../../config/context';
-import {useIsFocused} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const Map = ({navigation, route}) => {
+interface ICoordinate {
+  latitude: number;
+  longitude: number;
+}
+
+interface IStore {
+  id: string;
+  name: string;
+  address: string;
+  coordinate: ICoordinate;
+}
+
+const Map = ({navigation, route}: any) => {
   const {user, setUser, userType} = useContext(GlobalContext);
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [stores, setStores] = useState([]);
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState<ICoordinate>(null);
+  const [stores, setStores] = useState<IStore[]>([]);
+  const [selectedStore, setSelectedStore] = useState<IStore>(null);
   const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(isEmpty(user.name));
   const [name, setName] = useState('');
-  const mapRef = useRef(null);
+  const mapRef: any = useRef(null);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -49,8 +61,8 @@ const Map = ({navigation, route}) => {
       .collection('sellers')
       .get()
       .then(querySnapshot => {
-        let holder = [];
-        let coordinates = [];
+        let holder: IStore[] = [];
+        let coordinates: ICoordinate[] = [];
         querySnapshot.forEach(documentSnapshot => {
           if (!isNull(documentSnapshot.data().store)) {
             holder.push({
@@ -64,7 +76,6 @@ const Map = ({navigation, route}) => {
           }
         });
         setStores(holder);
-        setSelectedStore(holder[2]);
         setTimeout(() => {
           mapRef.current.fitToCoordinates(coordinates, {
             edgePadding: {
@@ -79,8 +90,9 @@ const Map = ({navigation, route}) => {
   };
 
   useEffect(() => {
+    // will get user location
     const config = {
-      //enableHighAccuracy: true,
+      enableHighAccuracy: true,
       timeout: 5000,
       maximumAge: 3600000,
     };
@@ -89,10 +101,12 @@ const Map = ({navigation, route}) => {
       error => console.log('ERROR', error),
       config,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const success = info => {
-    const coordinate = {
+  // get user location success
+  const success = (info: any) => {
+    const coordinate: ICoordinate = {
       latitude: info.coords.latitude,
       longitude: info.coords.longitude,
     };
@@ -109,6 +123,7 @@ const Map = ({navigation, route}) => {
     }
   };
 
+  // update store details
   const updateStore = () => {
     const store = {
       ...route.params.storeDetails,
@@ -135,6 +150,7 @@ const Map = ({navigation, route}) => {
       });
   };
 
+  // update buyer details
   const updateName = () => {
     if (!isEmpty(name)) {
       firestore()
@@ -237,7 +253,9 @@ const Map = ({navigation, route}) => {
           />
         </Box>
       )}
-      <Actionsheet isOpen={true} onClose={() => setIsSheetVisible(false)}>
+      <Actionsheet
+        isOpen={isSheetVisible}
+        onClose={() => setIsSheetVisible(false)}>
         <Actionsheet.Content>
           <VStack w="100%" p={3} space={2}>
             <Text>{selectedStore?.name}</Text>

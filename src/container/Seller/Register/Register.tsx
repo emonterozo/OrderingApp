@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import firestore from '@react-native-firebase/firestore';
 import {omit} from 'lodash';
+
 import GlobalContext from '../../../config/context';
 import {storeUser} from '../../../utils/utils';
 import {LOADING_TEXT, PROVIDER} from '../../../utils/constant';
@@ -45,12 +46,21 @@ const initial = {
   confirmPassword: '',
 };
 
-const Register = ({navigation}) => {
+interface IValues {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const Register = ({navigation}: any) => {
   const {userType, setUser} = useContext(GlobalContext);
   const [isLoading, setIsLoading] = useState(false);
 
-  const register = (values, {setFieldError}) => {
+  const register = (values: IValues, {setFieldError}: any) => {
     setIsLoading(true);
+
+    // will check if email exist
     firestore()
       .collection('sellers')
       .where('email', '==', values.email)
@@ -65,6 +75,8 @@ const Register = ({navigation}) => {
             store: null,
             provider: PROVIDER.EMAIL,
           };
+
+          // will create new user
           firestore()
             .collection('sellers')
             .add(data)

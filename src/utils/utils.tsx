@@ -1,10 +1,15 @@
 import {BackHandler} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ASYNC_STORAGE_KEY_USER, NOTIFICATION} from './constant';
-import {SERVER_KEY} from '../config/config';
-
 import PushNotification from 'react-native-push-notification';
 
+import {
+  ASYNC_STORAGE_KEY_CART,
+  ASYNC_STORAGE_KEY_USER,
+  NOTIFICATION,
+} from './constant';
+import {SERVER_KEY} from '../config/config';
+
+// store user data in async storage
 export const storeUser = async (data: any) => {
   try {
     const jsonValue = JSON.stringify(data);
@@ -14,6 +19,7 @@ export const storeUser = async (data: any) => {
   }
 };
 
+// get user data in async storage
 export const getUser = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem(ASYNC_STORAGE_KEY_USER);
@@ -23,6 +29,7 @@ export const getUser = async () => {
   }
 };
 
+// remove user data in async storage
 export const removeUser = async () => {
   try {
     return await AsyncStorage.removeItem(ASYNC_STORAGE_KEY_USER);
@@ -31,6 +38,7 @@ export const removeUser = async () => {
   }
 };
 
+// store cart data in async storage
 export const storeCart = async (data: any) => {
   try {
     const jsonValue = JSON.stringify(data);
@@ -40,6 +48,7 @@ export const storeCart = async (data: any) => {
   }
 };
 
+// get cart data in async storage
 export const getCart = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem(ASYNC_STORAGE_KEY_CART);
@@ -49,13 +58,7 @@ export const getCart = async () => {
   }
 };
 
-export const onBackPress = callback => {
-  BackHandler.addEventListener('hardwareBackPress', callback);
-  return () => {
-    BackHandler.removeEventListener('hardwareBackPress', callback);
-  };
-};
-
+// send fcm notification
 export const sendPushNotification = async (
   to: string,
   title: string,
@@ -87,7 +90,8 @@ export const sendPushNotification = async (
   }
 };
 
-export const numberWithCommas = x => {
+// format amount
+export const numberWithCommas = (x: number) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 

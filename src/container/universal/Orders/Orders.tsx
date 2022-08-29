@@ -14,24 +14,41 @@ import {
 import moment from 'moment';
 import firestore from '@react-native-firebase/firestore';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import {StyleSheet} from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {isEqual, round} from 'lodash';
 
 import {AppHeader} from '../../../components';
-import {isEqual, round} from 'lodash';
 import GlobalContext from '../../../config/context';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {STATUS, USER_BUYER} from '../../../utils/constant';
-import {StyleSheet} from 'react-native';
 import {numberWithCommas, sendPushNotification} from '../../../utils/utils';
 
-const Orders = ({navigation}) => {
+interface IOrder {
+  name: string;
+  orderId: string;
+  buyerId: string;
+  buyerName: string;
+  unitPrice: number;
+  quantity: number;
+  status: string;
+  timestamp: string;
+}
+
+interface IItem {
+  item: IOrder;
+  index: number;
+}
+
+const Orders = ({navigation}: any) => {
   const {user, userType} = useContext(GlobalContext);
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<IOrder[]>([]);
   const [status, setStatus] = useState(STATUS.PROCESSING);
   let row: Array<any> = [];
   let prevOpenedRow: any;
 
   useEffect(() => {
     getOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const getOrders = () => {
@@ -89,12 +106,12 @@ const Orders = ({navigation}) => {
         status: STATUS.COMPLETED,
       })
       .then(async () => {
-        const user = await firestore()
+        const userData = await firestore()
           .collection('buyers')
           .doc(item.buyerId)
           .get();
         sendPushNotification(
-          user.data().fcm_token,
+          userData.data().fcm_token,
           'Completed Order',
           `Your order ${item.orderId} is completed`,
         );
@@ -102,7 +119,7 @@ const Orders = ({navigation}) => {
       });
   };
 
-  const renderOrder = ({item, index}) => {
+  const renderOrder = ({item, index}: IItem) => {
     const closeRow = (i: number) => {
       if (prevOpenedRow && prevOpenedRow !== row[i]) {
         prevOpenedRow.close();
@@ -147,7 +164,7 @@ const Orders = ({navigation}) => {
     }
   };
 
-  const renderContent = item => (
+  const renderContent = (item: IOrder) => (
     <Box p={3} my={1} borderWidth="1" borderColor="coolGray.300" rounded="8">
       <VStack flex={1} space={1}>
         <HStack space={1}>

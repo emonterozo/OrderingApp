@@ -1,36 +1,27 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
-  AspectRatio,
-  Badge,
   Box,
   Button,
-  Divider,
   Fab,
   FlatList,
   FormControl,
-  Heading,
-  HStack,
   Icon,
-  Image,
   Input,
   Modal,
-  Pressable,
-  Stack,
   Text,
-  VStack,
   WarningOutlineIcon,
 } from 'native-base';
+import {StyleSheet} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import {useIsFocused} from '@react-navigation/native';
+import {isNull} from 'lodash';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import GlobalContext from '../../../config/context';
 import {AppHeader, Product} from '../../../components';
-import {StyleSheet} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useIsFocused} from '@react-navigation/native';
-import {isEqual, isNull, omit} from 'lodash';
-import moment from 'moment';
+import {IProduct} from '../../types/types';
 
 const schema = Yup.object().shape({
   name: Yup.string().required('This field is required'),
@@ -42,9 +33,14 @@ const initial = {
   address: '',
 };
 
-const Home = ({navigation}) => {
+interface IValues {
+  name: string;
+  address: string;
+}
+
+const Home = ({navigation}: any) => {
   const {user} = useContext(GlobalContext);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<IProduct[]>([]);
   const isFocused = useIsFocused();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
@@ -53,6 +49,7 @@ const Home = ({navigation}) => {
     if (isFocused) {
       getProducts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
   const getProducts = () => {
@@ -61,7 +58,7 @@ const Home = ({navigation}) => {
       .where('store_id', '==', user.id)
       .get()
       .then(querySnapshot => {
-        let holder = [];
+        let holder: any = [];
         querySnapshot.forEach(documentSnapshot => {
           holder.push({
             ...documentSnapshot.data(),
@@ -72,7 +69,7 @@ const Home = ({navigation}) => {
       });
   };
 
-  const submit = values => {
+  const submit = (values: IValues) => {
     navigation.navigate('Map', {storeDetails: values});
   };
 
@@ -143,7 +140,6 @@ const Home = ({navigation}) => {
           </Box>
         }
       />
-
       {isFocused && (
         <Box position="relative" w="100%">
           <Fab

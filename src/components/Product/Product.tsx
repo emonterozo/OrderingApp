@@ -8,10 +8,15 @@ import {
   Image,
   Text,
 } from 'native-base';
-import {round} from 'lodash';
 import {numberWithCommas} from '../../utils/utils';
+import {IProduct} from '../../container/types/types';
 
-const Product = ({item, navigation}) => {
+interface IProductComponent {
+  item: IProduct;
+  navigation: any;
+}
+
+const Product = ({item, navigation}: IProductComponent) => {
   return (
     <Pressable
       flex={1}

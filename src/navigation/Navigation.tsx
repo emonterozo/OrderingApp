@@ -16,10 +16,11 @@ import {
 } from '../container';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
-import GlobalContext from '../config/context';
-import {NOTIFICATION, USER_BUYER} from '../utils/constant';
 import PushNotification from 'react-native-push-notification';
 import {isEmpty, isNull} from 'lodash';
+
+import GlobalContext from '../config/context';
+import {NOTIFICATION, USER_BUYER} from '../utils/constant';
 import {getUser} from '../utils/utils';
 
 const Stack = createStackNavigator();
