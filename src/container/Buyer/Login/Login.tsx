@@ -24,7 +24,7 @@ import {StyleSheet} from 'react-native';
 const Login = ({navigation}) => {
   const {setUserType, userType, setUser} = useContext(GlobalContext);
   const [value, setValue] = useState('');
-  const [formattedValue, setFormattedValue] = useState('+639122011108');
+  const [formattedValue, setFormattedValue] = useState('+639122011101');
   const [error, setError] = useState('');
   const [isOtpScreen, setIsOtpScreen] = useState(true);
   const [confirm, setConfirm] = useState(null);

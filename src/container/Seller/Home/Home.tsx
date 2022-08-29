@@ -134,6 +134,14 @@ const Home = ({navigation}) => {
         data={products}
         renderItem={({item}) => <Product item={item} navigation={navigation} />}
         numColumns={2}
+        contentContainerStyle={products.length <= 0 && styles.empty}
+        ListEmptyComponent={
+          <Box>
+            <Text bold color="warmGray.400">
+              No available products
+            </Text>
+          </Box>
+        }
       />
 
       {isFocused && (
@@ -182,6 +190,11 @@ const styles = StyleSheet.create({
   flatList: {
     margin: 5,
     justifyContent: 'space-between',
+  },
+  empty: {
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

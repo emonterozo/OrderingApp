@@ -16,14 +16,15 @@ import firestore from '@react-native-firebase/firestore';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 import {AppHeader} from '../../../components';
-import {isEqual} from 'lodash';
+import {isEqual, round} from 'lodash';
 import GlobalContext from '../../../config/context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {STATUS} from '../../../utils/constant';
+import {STATUS, USER_BUYER} from '../../../utils/constant';
 import {StyleSheet} from 'react-native';
+import {numberWithCommas, sendPushNotification} from '../../../utils/utils';
 
 const Orders = ({navigation}) => {
-  const {user} = useContext(GlobalContext);
+  const {user, userType} = useContext(GlobalContext);
   const [orders, setOrders] = useState([]);
   const [status, setStatus] = useState(STATUS.PROCESSING);
   let row: Array<any> = [];
@@ -36,7 +37,11 @@ const Orders = ({navigation}) => {
   const getOrders = () => {
     firestore()
       .collection('orders')
-      .where('store_id', '==', user.id)
+      .where(
+        isEqual(userType, USER_BUYER) ? 'buyer_id' : 'store_id',
+        '==',
+        user.id,
+      )
       .where('status', '==', status)
       .get()
       .then(async orderSnapshot => {
@@ -66,7 +71,9 @@ const Orders = ({navigation}) => {
               unitPrice: item.unit_price,
               quantity: item.quantity,
               status: item.status,
-              timestamp: moment(item.timestamp).format('MMMM DD, YYYY hh:mm A'),
+              timestamp: moment(new Date(item.timestamp.seconds * 1000)).format(
+                'MMMM DD, YYYY hh:mm A',
+              ),
             });
           }),
         );
@@ -74,14 +81,23 @@ const Orders = ({navigation}) => {
       });
   };
 
-  const completeOrder = (id: string) => {
+  const completeOrder = (item: any) => {
     firestore()
       .collection('orders')
-      .doc(id)
+      .doc(item.orderId)
       .update({
         status: STATUS.COMPLETED,
       })
-      .then(() => {
+      .then(async () => {
+        const user = await firestore()
+          .collection('buyers')
+          .doc(item.buyerId)
+          .get();
+        sendPushNotification(
+          user.data().fcm_token,
+          'Completed Order',
+          `Your order ${item.orderId} is completed`,
+        );
         getOrders();
       });
   };
@@ -110,67 +126,72 @@ const Orders = ({navigation}) => {
             size="lg"
             onPress={() => {
               closeRow(index - 1);
-              completeOrder(item.orderId);
+              completeOrder(item);
             }}
           />
         </Box>
       );
     };
 
-    return (
-      <Swipeable
-        renderRightActions={() => renderRightActions()}
-        onSwipeableOpen={() => closeRow(index)}
-        ref={ref => (row[index] = ref)}>
-        <Box
-          p={3}
-          my={1}
-          borderWidth="1"
-          borderColor="coolGray.300"
-          rounded="8">
-          <VStack flex={1} space={1}>
-            <HStack space={1}>
-              <Text bold>Product:</Text>
-              <Text>{item.name}</Text>
-            </HStack>
-            <HStack space={1}>
-              <Text bold>Unit Price:</Text>
-              <Text>{`PHP ${item.unitPrice}`}</Text>
-            </HStack>
-            <HStack space={1}>
-              <Text bold>Quantity:</Text>
-              <Text>{item.quantity}</Text>
-            </HStack>
-            <HStack space={1}>
-              <Text bold>Amount:</Text>
-              <Text>{`PHP ${item.unitPrice * item.quantity}`}</Text>
-            </HStack>
-            <HStack space={1}>
-              <Text bold>Timestamp:</Text>
-              <Text>{item.timestamp}</Text>
-            </HStack>
-            <HStack space={1}>
-              <Text bold>Order by:</Text>
-              <Text>{item.buyerName}</Text>
-            </HStack>
-            <Badge
-              alignSelf="flex-end"
-              p="1"
-              w="40%"
-              variant="solid"
-              borderRadius="full"
-              colorScheme={
-                isEqual(item.status, STATUS.PROCESSING) ? 'yellow' : 'success'
-              }>
-              <Text italic color="white">
-                {item.status}
-              </Text>
-            </Badge>
-          </VStack>
-        </Box>
-      </Swipeable>
-    );
+    if (isEqual(userType, USER_BUYER)) {
+      return renderContent(item);
+    } else {
+      return (
+        <Swipeable
+          renderRightActions={() => renderRightActions()}
+          onSwipeableOpen={() => closeRow(index)}
+          ref={ref => (row[index] = ref)}>
+          {renderContent(item)}
+        </Swipeable>
+      );
+    }
   };
+
+  const renderContent = item => (
+    <Box p={3} my={1} borderWidth="1" borderColor="coolGray.300" rounded="8">
+      <VStack flex={1} space={1}>
+        <HStack space={1}>
+          <Text bold>Product:</Text>
+          <Text>{item.name}</Text>
+        </HStack>
+        <HStack space={1}>
+          <Text bold>Unit Price:</Text>
+          <Text>{`PHP ${numberWithCommas(item.unitPrice)}`}</Text>
+        </HStack>
+        <HStack space={1}>
+          <Text bold>Quantity:</Text>
+          <Text>{item.quantity}</Text>
+        </HStack>
+        <HStack space={1}>
+          <Text bold>Amount:</Text>
+          <Text>{`PHP ${numberWithCommas(
+            round(item.unitPrice * item.quantity),
+          )}`}</Text>
+        </HStack>
+        <HStack space={1}>
+          <Text bold>Timestamp:</Text>
+          <Text>{item.timestamp}</Text>
+        </HStack>
+        <HStack space={1}>
+          <Text bold>Order by:</Text>
+          <Text>{item.buyerName}</Text>
+        </HStack>
+        <Badge
+          alignSelf="flex-end"
+          p="1"
+          w="40%"
+          variant="solid"
+          borderRadius="full"
+          colorScheme={
+            isEqual(item.status, STATUS.PROCESSING) ? 'yellow' : 'success'
+          }>
+          <Text italic color="white">
+            {item.status}
+          </Text>
+        </Badge>
+      </VStack>
+    </Box>
+  );
 
   return (
     <Box flex={1} safeArea>

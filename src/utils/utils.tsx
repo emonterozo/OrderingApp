@@ -1,6 +1,9 @@
 import {BackHandler} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ASYNC_STORAGE_KEY_USER} from './constant';
+import {ASYNC_STORAGE_KEY_USER, NOTIFICATION} from './constant';
+import {SERVER_KEY} from '../config/config';
+
+import PushNotification from 'react-native-push-notification';
 
 export const storeUser = async (data: any) => {
   try {
@@ -51,4 +54,48 @@ export const onBackPress = callback => {
   return () => {
     BackHandler.removeEventListener('hardwareBackPress', callback);
   };
+};
+
+export const sendPushNotification = async (
+  to: string,
+  title: string,
+  body: string,
+) => {
+  const message = {
+    to: to,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+
+  let headers = new Headers({
+    'Content-Type': 'application/json',
+    Authorization: 'key=' + SERVER_KEY,
+  });
+
+  try {
+    let response = await fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(message),
+    });
+    response = await response.json();
+    console.log('response ', response);
+  } catch (error) {
+    console.log('error ', error);
+  }
+};
+
+export const numberWithCommas = x => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+// send local notification
+export const sendLocalNotification = (title: string, message: string) => {
+  PushNotification.localNotification({
+    channelId: NOTIFICATION.CHANNEL_ID,
+    title: title,
+    message: message,
+  });
 };

@@ -17,7 +17,8 @@ import {
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import GlobalContext from '../config/context';
-import {USER_BUYER} from '../utils/constant';
+import {NOTIFICATION, USER_BUYER} from '../utils/constant';
+import PushNotification from 'react-native-push-notification';
 import {isEmpty, isNull} from 'lodash';
 import {getUser} from '../utils/utils';
 
@@ -44,6 +45,7 @@ const BuyerScreen = () => {
       <SellerStack.Screen name="Cart" component={Cart} />
       <SellerStack.Screen name="Chat" component={Chat} />
       <SellerStack.Screen name="Message" component={Message} />
+      <SellerStack.Screen name="Orders" component={Orders} />
     </BuyerStack.Navigator>
   );
 };
@@ -78,6 +80,10 @@ const Navigation = () => {
   const {userType, user, setUser, setUserType} = useContext(GlobalContext);
 
   useEffect(() => {
+    PushNotification.createChannel({
+      channelId: NOTIFICATION.CHANNEL_ID,
+      channelName: NOTIFICATION.CHANNEL_NAME,
+    });
     getUser().then(res => {
       setUserType(isNull(res) ? '' : res.userType);
       setUser(res);

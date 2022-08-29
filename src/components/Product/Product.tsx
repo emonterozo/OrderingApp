@@ -8,6 +8,8 @@ import {
   Image,
   Text,
 } from 'native-base';
+import {round} from 'lodash';
+import {numberWithCommas} from '../../utils/utils';
 
 const Product = ({item, navigation}) => {
   return (
@@ -41,7 +43,7 @@ const Product = ({item, navigation}) => {
         </Text>
         <Box flex={1} justifyContent="flex-end" alignItems="flex-end">
           <Text color="coolGray.600" fontWeight="bold">
-            {`PHP ${item.price}`}
+            {`PHP ${numberWithCommas(item.price)}`}
           </Text>
         </Box>
       </Stack>

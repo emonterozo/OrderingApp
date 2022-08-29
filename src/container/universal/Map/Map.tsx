@@ -32,7 +32,7 @@ const Map = ({navigation, route}) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState(null);
-  const [isSheetVisible, setIsSheetVisible] = useState(true);
+  const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(isEmpty(user.name));
   const [name, setName] = useState('');
   const mapRef = useRef(null);
@@ -64,7 +64,7 @@ const Map = ({navigation, route}) => {
           }
         });
         setStores(holder);
-        setSelectedStore(holder[0]);
+        setSelectedStore(holder[2]);
         setTimeout(() => {
           mapRef.current.fitToCoordinates(coordinates, {
             edgePadding: {
@@ -80,8 +80,8 @@ const Map = ({navigation, route}) => {
 
   useEffect(() => {
     const config = {
-      enableHighAccuracy: true,
-      timeout: 2000,
+      //enableHighAccuracy: true,
+      timeout: 5000,
       maximumAge: 3600000,
     };
     Geolocation.getCurrentPosition(
@@ -112,7 +112,10 @@ const Map = ({navigation, route}) => {
   const updateStore = () => {
     const store = {
       ...route.params.storeDetails,
-      ...currentLocation,
+      coordinate: new firestore.GeoPoint(
+        currentLocation.latitude,
+        currentLocation.longitude,
+      ),
     };
 
     firestore()
@@ -182,7 +185,7 @@ const Map = ({navigation, route}) => {
         }
       />
       <MapView ref={mapRef} style={styles.map} initialRegion={REGION}>
-        {!isNull(currentLocation) && (
+        {!isNull(currentLocation) && isEqual(userType, USER_SELLER) && (
           <Marker
             onDragEnd={e => setCurrentLocation(e.nativeEvent.coordinate)}
             draggable
@@ -198,26 +201,43 @@ const Map = ({navigation, route}) => {
                   latitude: store.coordinate.latitude,
                   longitude: store.coordinate.longitude,
                 }}
-                onPress={() => console.log(store)}
+                onPress={() => {
+                  setSelectedStore(store);
+                  setIsSheetVisible(true);
+                }}
               />
             );
           })}
       </MapView>
       {isEqual(userType, USER_BUYER) && isFocused && (
-        <Fab
-          placement="bottom-right"
-          icon={
-            <Icon
-              color="white"
-              as={<MaterialCommunityIcons name="message-outline" />}
-            />
-          }
-          onPress={() => navigation.navigate('Message')}
-        />
+        <Box position="relative" w="100%">
+          <Fab
+            right={5}
+            bottom={20}
+            icon={
+              <Icon
+                color="white"
+                as={
+                  <MaterialCommunityIcons name="format-list-bulleted-square" />
+                }
+              />
+            }
+            onPress={() => navigation.navigate('Orders')}
+          />
+          <Fab
+            right={5}
+            bottom={5}
+            icon={
+              <Icon
+                color="white"
+                as={<MaterialCommunityIcons name="message-outline" />}
+              />
+            }
+            onPress={() => navigation.navigate('Message')}
+          />
+        </Box>
       )}
-      <Actionsheet
-        isOpen={isSheetVisible}
-        onClose={() => setIsSheetVisible(false)}>
+      <Actionsheet isOpen={true} onClose={() => setIsSheetVisible(false)}>
         <Actionsheet.Content>
           <VStack w="100%" p={3} space={2}>
             <Text>{selectedStore?.name}</Text>

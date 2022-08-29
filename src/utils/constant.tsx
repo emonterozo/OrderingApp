@@ -18,3 +18,8 @@ export const REGION = {
   latitudeDelta: 11,
   longitudeDelta: 11,
 };
+
+export const NOTIFICATION = {
+  CHANNEL_ID: 'orderingApp',
+  CHANNEL_NAME: 'Ordering App',
+};

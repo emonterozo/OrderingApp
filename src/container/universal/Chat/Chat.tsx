@@ -166,6 +166,9 @@ const Chat = ({route, navigation}) => {
         user={{
           _id: user.id,
         }}
+        textInputProps={{
+          color: 'black',
+        }}
       />
     </>
   );

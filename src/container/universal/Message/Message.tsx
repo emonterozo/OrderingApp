@@ -23,11 +23,11 @@ const Message = ({navigation}: IMessage) => {
     const subscriber = firestore()
       .collection('messages')
       .where('conversation_between', 'array-contains', user.id)
-      .orderBy('timestamp', 'desc')
+      //.orderBy('timestamp', 'desc')
       .onSnapshot(async querySnapshot => {
         let messagesData: any[] = [];
 
-        querySnapshot.forEach(doc => {
+        querySnapshot?.forEach(doc => {
           messagesData.push({
             ...doc.data(),
             id: doc.id,

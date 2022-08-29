@@ -5,6 +5,7 @@ import messaging from '@react-native-firebase/messaging';
 import {NativeBaseProvider} from 'native-base';
 import GlobalContext from './src/config/context';
 import Navigation from './src/navigation/Navigation';
+import {sendLocalNotification} from './src/utils/utils';
 
 const App = () => {
   const [userType, setUserType] = useState('');
@@ -15,6 +16,10 @@ const App = () => {
     // will get message in foreground state
     messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      sendLocalNotification(
+        remoteMessage.notification?.title,
+        remoteMessage.notification?.body,
+      );
     });
 
     // when FCM open while the app is in background state

@@ -13,14 +13,18 @@ import {
   VStack,
 } from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {sum, sumBy} from 'lodash';
+import {round, sum, sumBy} from 'lodash';
 import {StyleSheet} from 'react-native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import firestore from '@react-native-firebase/firestore';
 
 import GlobalContext from '../../../config/context';
 
-import {storeCart} from '../../../utils/utils';
+import {
+  numberWithCommas,
+  sendPushNotification,
+  storeCart,
+} from '../../../utils/utils';
 import {AppHeader} from '../../../components';
 import {STATUS} from '../../../utils/constant';
 
@@ -50,7 +54,7 @@ const Cart = ({navigation}: any) => {
 
   const calculateSum = () => {
     let prices = cart.map(item => item.price * item.quantity);
-    return sum(prices);
+    return numberWithCommas(round(sum(prices)));
   };
 
   const renderProduct = ({item, index}) => {
@@ -106,7 +110,7 @@ const Cart = ({navigation}: any) => {
               </VStack>
               <HStack justifyContent="space-between">
                 <Text fontWeight="600" color="red.600">
-                  {`PHP ${item.price * item.quantity}`}
+                  {`PHP ${numberWithCommas(round(item.price * item.quantity))}`}
                 </Text>
                 <HStack space={2} alignItems="center">
                   <IconButton
@@ -140,8 +144,9 @@ const Cart = ({navigation}: any) => {
     );
   };
 
-  const handlePressCheckout = () => {
+  const handlePressCheckout = async () => {
     let count = 0;
+
     cart.map((item, index) => {
       firestore()
         .collection('orders')
@@ -155,12 +160,21 @@ const Cart = ({navigation}: any) => {
           timestamp: new Date(),
           unit_price: item.price,
         })
-        .then(() => {
+        .then(async () => {
           count = index;
           console.log('User added!', count);
           if (count === cart.length - 1) {
             setCart([]);
             storeCart([]);
+            const seller = await firestore()
+              .collection('sellers')
+              .doc(cart[0].store_id)
+              .get();
+            sendPushNotification(
+              seller.data().fcm_token,
+              'Completed Order',
+              `Your received new order's from ${user.name}`,
+            );
           }
         });
     });

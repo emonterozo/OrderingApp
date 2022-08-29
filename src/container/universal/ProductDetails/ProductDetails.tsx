@@ -23,6 +23,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import GlobalContext from '../../../config/context';
 import {isEqual} from 'lodash';
 import {USER_BUYER, USER_SELLER} from '../../../utils/constant';
+import {numberWithCommas} from '../../../utils/utils';
 
 export const SLIDER_WIDTH = Dimensions.get('window').width + 30;
 export const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
@@ -150,7 +151,7 @@ const ProductDetails = ({navigation, route}: any) => {
                   {product.description}
                 </Text>
                 <Text color="coolGray.600" fontWeight="bold">
-                  {`PHP ${product.price}`}
+                  {`PHP ${numberWithCommas(product.price)}`}
                 </Text>
               </Stack>
             </Box>

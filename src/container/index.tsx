@@ -6,7 +6,7 @@ import SellerLogin from './Seller/Login/Login';
 import SellerRegister from './Seller/Register/Register';
 import ProductForm from './Seller/ProductForm/ProductForm';
 import ProductDetails from './universal/ProductDetails/ProductDetails';
-import Orders from './Seller/Orders/Orders';
+import Orders from './universal/Orders/Orders';
 import Map from './universal/Map/Map';
 import Cart from './Buyer/Cart/Cart';
 import Chat from './universal/Chat/Chat';
