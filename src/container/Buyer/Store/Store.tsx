@@ -69,6 +69,9 @@ const Store = ({navigation, route}) => {
               as={<MaterialCommunityIcons name="message-outline" />}
             />
           }
+          onPress={() =>
+            navigation.navigate('Chat', {toUser: store.id, name: store.name})
+          }
         />
       )}
     </Box>

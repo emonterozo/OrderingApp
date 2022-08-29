@@ -14,6 +14,7 @@ import auth from '@react-native-firebase/auth';
 import PhoneInput from 'react-native-phone-number-input';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GlobalContext from '../../../config/context';
@@ -23,7 +24,7 @@ import {StyleSheet} from 'react-native';
 const Login = ({navigation}) => {
   const {setUserType, userType, setUser} = useContext(GlobalContext);
   const [value, setValue] = useState('');
-  const [formattedValue, setFormattedValue] = useState('+639122011102');
+  const [formattedValue, setFormattedValue] = useState('+639122011108');
   const [error, setError] = useState('');
   const [isOtpScreen, setIsOtpScreen] = useState(true);
   const [confirm, setConfirm] = useState(null);
@@ -45,13 +46,16 @@ const Login = ({navigation}) => {
       //2 na ako
       await confirm.confirm(code);
       console.log('valid get firestore');
+      //getUser();
     } catch (error) {
       getUser();
       console.log('Invalid code.', formattedValue);
     }
   };
 
-  const getUser = () => {
+  const getUser = async () => {
+    const token = await messaging().getToken();
+
     firestore()
       .collection('buyers')
       .where('number', '==', formattedValue)
@@ -64,6 +68,7 @@ const Login = ({navigation}) => {
             .add({
               name: '',
               number: formattedValue,
+              fcm_token: token,
             })
             .then(snapShot => {
               user = {
@@ -79,11 +84,21 @@ const Login = ({navigation}) => {
           querySnapshot.forEach(documentSnapshot => {
             user = {
               ...documentSnapshot.data(),
+              fcm_token: token,
               id: documentSnapshot.id,
             };
           });
-          setUser(user);
-          storeUser(user);
+
+          firestore()
+            .collection('buyers')
+            .doc(user.id)
+            .update({
+              fcm_token: token,
+            })
+            .then(() => {
+              setUser(user);
+              storeUser(user);
+            });
         }
       });
   };

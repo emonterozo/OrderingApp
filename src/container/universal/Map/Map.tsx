@@ -3,22 +3,27 @@ import {
   Actionsheet,
   Box,
   Button,
+  Fab,
   Icon,
   IconButton,
+  Input,
   Text,
   VStack,
+  Modal,
+  FormControl,
 } from 'native-base';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import firestore from '@react-native-firebase/firestore';
 
 import {AppHeader} from '../../../components';
-import {isEqual, isNull} from 'lodash';
+import {isEmpty, isEqual, isNull} from 'lodash';
 import {REGION, USER_BUYER, USER_SELLER} from '../../../utils/constant';
 import {Dimensions, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {removeUser, storeUser} from '../../../utils/utils';
 import GlobalContext from '../../../config/context';
+import {useIsFocused} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -28,7 +33,10 @@ const Map = ({navigation, route}) => {
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState(null);
   const [isSheetVisible, setIsSheetVisible] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(isEmpty(user.name));
+  const [name, setName] = useState('');
   const mapRef = useRef(null);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isEqual(userType, USER_BUYER)) {
@@ -56,7 +64,7 @@ const Map = ({navigation, route}) => {
           }
         });
         setStores(holder);
-        setSelectedStore(holder[1]);
+        setSelectedStore(holder[0]);
         setTimeout(() => {
           mapRef.current.fitToCoordinates(coordinates, {
             edgePadding: {
@@ -124,8 +132,40 @@ const Map = ({navigation, route}) => {
       });
   };
 
+  const updateName = () => {
+    if (!isEmpty(name)) {
+      firestore()
+        .collection('buyers')
+        .doc(user.id)
+        .update({
+          name: name,
+        })
+        .then(() => {
+          setIsModalVisible(false);
+        });
+    }
+  };
+
   return (
     <Box flex={1}>
+      {isEqual(userType, USER_BUYER) && (
+        <Modal isOpen={isModalVisible}>
+          <Modal.Content>
+            <Modal.Header>Input name</Modal.Header>
+            <Modal.Body>
+              <FormControl>
+                <FormControl.Label>Name</FormControl.Label>
+                <Input value={name} onChangeText={setName} />
+              </FormControl>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button.Group space={2}>
+                <Button onPress={updateName}>Update</Button>
+              </Button.Group>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
+      )}
       <AppHeader
         title={isEqual(userType, USER_BUYER) ? 'Stores' : 'Locate'}
         isLogoutVisible={isEqual(userType, USER_BUYER)}
@@ -141,11 +181,7 @@ const Map = ({navigation, route}) => {
           )
         }
       />
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={REGION}
-        zoomControlEnabled>
+      <MapView ref={mapRef} style={styles.map} initialRegion={REGION}>
         {!isNull(currentLocation) && (
           <Marker
             onDragEnd={e => setCurrentLocation(e.nativeEvent.coordinate)}
@@ -167,6 +203,18 @@ const Map = ({navigation, route}) => {
             );
           })}
       </MapView>
+      {isEqual(userType, USER_BUYER) && isFocused && (
+        <Fab
+          placement="bottom-right"
+          icon={
+            <Icon
+              color="white"
+              as={<MaterialCommunityIcons name="message-outline" />}
+            />
+          }
+          onPress={() => navigation.navigate('Message')}
+        />
+      )}
       <Actionsheet
         isOpen={isSheetVisible}
         onClose={() => setIsSheetVisible(false)}>

@@ -12,6 +12,7 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import {isEmpty, isEqual} from 'lodash';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import messaging from '@react-native-firebase/messaging';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {onBackPress, storeUser} from '../../../utils/utils';
@@ -36,6 +37,7 @@ const Login = ({navigation}) => {
 
   const googleLogin = async () => {
     try {
+      const token = await messaging().getToken();
       const userInfo = await GoogleSignin.signIn();
 
       firestore()
@@ -50,6 +52,7 @@ const Login = ({navigation}) => {
               password: '',
               store: null,
               provider: PROVIDER.GOOGLE,
+              fcm_token: token,
             };
             firestore()
               .collection('sellers')
@@ -67,9 +70,11 @@ const Login = ({navigation}) => {
             querySnapshot.forEach(documentSnapshot => {
               const user = {
                 ...documentSnapshot.data(),
+                fcm_token: token,
                 id: documentSnapshot.id,
                 userType: userType,
               };
+              updateToken(user.id, token);
               setUser(user);
               storeUser(user);
             });
@@ -87,16 +92,20 @@ const Login = ({navigation}) => {
         .collection('sellers')
         .where('email', '==', email)
         .get()
-        .then(querySnapshot => {
+        .then(async querySnapshot => {
           setIsLoading(false);
           if (querySnapshot.size > 0) {
+            const token = await messaging().getToken();
             querySnapshot.forEach(documentSnapshot => {
               const user = {
                 ...documentSnapshot.data(),
+                fcm_token: token,
                 id: documentSnapshot.id,
                 userType: userType,
               };
               if (isEqual(user.password, password)) {
+                console.log(user);
+                updateToken(user.id, token);
                 setUser(user);
                 storeUser(user);
               } else {
@@ -108,6 +117,18 @@ const Login = ({navigation}) => {
           }
         });
     }
+  };
+
+  const updateToken = async (id, token) => {
+    firestore()
+      .collection('sellers')
+      .doc(id)
+      .update({
+        fcm_token: token,
+      })
+      .then(() => {
+        console.log('updated token');
+      });
   };
 
   return (

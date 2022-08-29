@@ -170,6 +170,7 @@ const Home = ({navigation}) => {
                 as={<MaterialCommunityIcons name="message-outline" />}
               />
             }
+            onPress={() => navigation.navigate('Message')}
           />
         </Box>
       )}

@@ -5,13 +5,14 @@ import {
   SellerHome,
   BuyerLogin,
   SellerLogin,
-  BuyerRegister,
   SellerRegister,
   ProductForm,
   ProductDetails,
   Orders,
   Map,
   Cart,
+  Chat,
+  Message,
 } from '../container';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -30,7 +31,6 @@ const BuyerAuthScreen = () => {
   return (
     <BuyerAuthStack.Navigator screenOptions={{headerShown: false}}>
       <BuyerAuthStack.Screen name="BuyerLogin" component={BuyerLogin} />
-      <BuyerAuthStack.Screen name="BuyerRegister" component={BuyerRegister} />
     </BuyerAuthStack.Navigator>
   );
 };
@@ -42,6 +42,8 @@ const BuyerScreen = () => {
       <BuyerStack.Screen name="Store" component={Store} />
       <SellerStack.Screen name="ProductDetails" component={ProductDetails} />
       <SellerStack.Screen name="Cart" component={Cart} />
+      <SellerStack.Screen name="Chat" component={Chat} />
+      <SellerStack.Screen name="Message" component={Message} />
     </BuyerStack.Navigator>
   );
 };
@@ -66,6 +68,8 @@ const SellerScreen = () => {
       <SellerStack.Screen name="ProductDetails" component={ProductDetails} />
       <SellerStack.Screen name="Orders" component={Orders} />
       <SellerStack.Screen name="Map" component={Map} />
+      <SellerStack.Screen name="Chat" component={Chat} />
+      <SellerStack.Screen name="Message" component={Message} />
     </SellerStack.Navigator>
   );
 };
