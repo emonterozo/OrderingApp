@@ -88,7 +88,7 @@ const Login = () => {
   };
 
   const submit = () => {
-    /*if (!isOtpScreen) {
+    if (!isOtpScreen) {
       const isValid = phoneInput.current?.isValidNumber(value);
       setError(isValid ? '' : 'Invalid phone number');
       if (isValid) {
@@ -98,8 +98,7 @@ const Login = () => {
     } else {
       // verify OTP
       confirmCode();
-    }*/
-    getUser();
+    }
   };
 
   return (
