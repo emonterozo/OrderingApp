@@ -16,7 +16,7 @@ import * as Yup from 'yup';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
-import {isEqual} from 'lodash';
+import {isEmpty, isEqual} from 'lodash';
 
 import {AppHeader} from '../../../components';
 import {FileImagePlus} from '../../../assets/svg';
@@ -76,7 +76,9 @@ const ProductForm = ({navigation, route}: any) => {
 
   const submit = async (values: IValues) => {
     // return valid images for upload
-    const imagesToUpload = images.filter(image => !isValidURL(image));
+    const imagesToUpload = images.filter(
+      image => !isValidURL(image) && !isEmpty(image),
+    );
 
     if (imageError === '') {
       setIsLoading(true);
@@ -108,7 +110,7 @@ const ProductForm = ({navigation, route}: any) => {
           ) {
             // will get images does not change
             const retainImages = images.filter(
-              image => image.substring(0, 8) !== 'file:///' && image !== '',
+              image => !isValidURL(image) && !isEmpty(image),
             );
             newImages = [...imagesUrl, ...retainImages];
           }
@@ -184,7 +186,7 @@ const ProductForm = ({navigation, route}: any) => {
   };
 
   return (
-    <Box flex={1}>
+    <Box flex={1} safeArea>
       <AppHeader title={title} hasBack navigation={navigation} />
       <Formik
         initialValues={initial}
