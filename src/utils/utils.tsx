@@ -1,4 +1,4 @@
-import {BackHandler} from 'react-native';
+import {Permission, PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotification from 'react-native-push-notification';
 
@@ -102,4 +102,35 @@ export const sendLocalNotification = (title: string, message: string) => {
     title: title,
     message: message,
   });
+};
+
+export const requestPermission = async (
+  title: string,
+  message: string,
+  permission: Permission,
+) => {
+  try {
+    const granted = await PermissionsAndroid.request(permission, {
+      title: title,
+      message: message,
+      buttonNegative: 'Cancel',
+      buttonPositive: 'OK',
+    });
+    return granted;
+  } catch (err) {
+    console.warn(err);
+  }
+};
+
+export const isValidURL = (str: string) => {
+  var pattern = new RegExp(
+    '^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i',
+  ); // fragment locator
+  return !!pattern.test(str);
 };

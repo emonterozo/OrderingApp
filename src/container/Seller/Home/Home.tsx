@@ -44,6 +44,7 @@ const Home = ({navigation}: any) => {
   const isFocused = useIsFocused();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
+  const [isModalVisible, setIsModalVisible] = useState(isNull(user.store));
 
   useEffect(() => {
     if (isFocused) {
@@ -70,6 +71,7 @@ const Home = ({navigation}: any) => {
   };
 
   const submit = (values: IValues) => {
+    setIsModalVisible(false);
     navigation.navigate('Map', {storeDetails: values});
   };
 
@@ -77,7 +79,7 @@ const Home = ({navigation}: any) => {
     <Box flex={1} safeArea>
       <Modal
         closeOnOverlayClick={false}
-        isOpen={isNull(user.store)}
+        isOpen={isModalVisible}
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}>
         <Modal.Content>

@@ -22,6 +22,7 @@ import {AppHeader} from '../../../components';
 import {FileImagePlus} from '../../../assets/svg';
 import GlobalContext from '../../../config/context';
 import {LOADING_TEXT} from '../../../utils/constant';
+import {isValidURL} from '../../../utils/utils';
 
 const schema = Yup.object().shape({
   name: Yup.string().required('This field is required'),
@@ -75,9 +76,7 @@ const ProductForm = ({navigation, route}: any) => {
 
   const submit = async (values: IValues) => {
     // return valid images for upload
-    const imagesToUpload = images.filter(
-      image => image.substring(0, 8) === 'file:///',
-    );
+    const imagesToUpload = images.filter(image => !isValidURL(image));
 
     if (imageError === '') {
       setIsLoading(true);

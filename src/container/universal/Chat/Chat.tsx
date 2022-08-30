@@ -6,6 +6,7 @@ import firestore from '@react-native-firebase/firestore';
 import GlobalContext from '../../../config/context';
 import {AppHeader} from '../../../components';
 import {USER_BUYER, USER_SELLER} from '../../../utils/constant';
+import {Box} from 'native-base';
 
 const Chat = ({route, navigation}: any) => {
   const {user, userType} = useContext(GlobalContext);
@@ -142,7 +143,7 @@ const Chat = ({route, navigation}: any) => {
   );
 
   return (
-    <>
+    <Box flex={1} safeArea>
       <AppHeader
         title={route.params?.name || 'Message'}
         hasBack
@@ -158,7 +159,7 @@ const Chat = ({route, navigation}: any) => {
           color: 'black',
         }}
       />
-    </>
+    </Box>
   );
 };
 

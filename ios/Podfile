@@ -10,6 +10,8 @@ target 'OrderingApp' do
   use_frameworks! :linkage => :static
   config = use_native_modules!
 
+  pod 'GoogleSignIn'
+
 
   use_react_native!(
     :path => config[:reactNativePath],

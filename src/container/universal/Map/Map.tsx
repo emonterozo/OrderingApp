@@ -12,7 +12,12 @@ import {
   Modal,
   FormControl,
 } from 'native-base';
-import {Dimensions, StyleSheet} from 'react-native';
+import {
+  Dimensions,
+  PermissionsAndroid,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import firestore from '@react-native-firebase/firestore';
@@ -22,7 +27,7 @@ import {isEmpty, isEqual, isNull} from 'lodash';
 
 import {AppHeader} from '../../../components';
 import {REGION, USER_BUYER, USER_SELLER} from '../../../utils/constant';
-import {storeUser} from '../../../utils/utils';
+import {requestPermission, storeUser} from '../../../utils/utils';
 import GlobalContext from '../../../config/context';
 
 const {width, height} = Dimensions.get('window');
@@ -91,18 +96,38 @@ const Map = ({navigation, route}: any) => {
 
   useEffect(() => {
     // will get user location
+    checkPlatform();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const checkPlatform = async () => {
+    if (Platform.OS === 'android') {
+      const status = await requestPermission(
+        'Ordering App request permission',
+        'Ordering App need to access your current location',
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+
+      if (status === PermissionsAndroid.RESULTS.GRANTED) {
+        getLocation();
+      }
+    } else {
+      getLocation();
+    }
+  };
+
+  const getLocation = async () => {
     const config = {
-      enableHighAccuracy: true,
+      enableHighAccuracy: false,
       timeout: 5000,
-      maximumAge: 3600000,
+      //maximumAge: 3600000,
     };
     Geolocation.getCurrentPosition(
       success,
-      error => console.log('ERROR', error),
+      error => console.log(error),
       config,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   // get user location success
   const success = (info: any) => {
@@ -160,13 +185,19 @@ const Map = ({navigation, route}: any) => {
           name: name,
         })
         .then(() => {
+          const userData = {
+            ...user,
+            name: name,
+          };
+          setUser(userData);
+          storeUser(userData);
           setIsModalVisible(false);
         });
     }
   };
 
   return (
-    <Box flex={1}>
+    <Box flex={1} safeArea>
       {isEqual(userType, USER_BUYER) && (
         <Modal isOpen={isModalVisible}>
           <Modal.Content>
@@ -261,9 +292,10 @@ const Map = ({navigation, route}: any) => {
             <Text>{selectedStore?.name}</Text>
             <Text>{selectedStore?.address}</Text>
             <Button
-              onPress={() =>
-                navigation.navigate('Store', {store: selectedStore})
-              }>
+              onPress={() => {
+                setIsSheetVisible(false);
+                navigation.navigate('Store', {store: selectedStore});
+              }}>
               View Store
             </Button>
           </VStack>

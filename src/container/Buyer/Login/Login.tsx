@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {Box, Button, Heading, Text, VStack} from 'native-base';
 import auth from '@react-native-firebase/auth';
 import PhoneInput from 'react-native-phone-number-input';
@@ -88,7 +88,7 @@ const Login = () => {
   };
 
   const submit = () => {
-    if (!isOtpScreen) {
+    /*if (!isOtpScreen) {
       const isValid = phoneInput.current?.isValidNumber(value);
       setError(isValid ? '' : 'Invalid phone number');
       if (isValid) {
@@ -98,7 +98,8 @@ const Login = () => {
     } else {
       // verify OTP
       confirmCode();
-    }
+    }*/
+    getUser();
   };
 
   return (

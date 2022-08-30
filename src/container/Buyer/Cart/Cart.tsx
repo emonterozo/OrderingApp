@@ -172,7 +172,7 @@ const Cart = ({navigation}: any) => {
               .get();
             sendPushNotification(
               seller.data().fcm_token,
-              'Completed Order',
+              'New Order',
               `Your received new order's from ${user.name}`,
             );
           }

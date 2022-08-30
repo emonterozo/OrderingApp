@@ -33,7 +33,7 @@ const Message = ({navigation}: any) => {
     const subscriber = firestore()
       .collection('messages')
       .where('conversation_between', 'array-contains', user.id)
-      .orderBy('timestamp', 'desc')
+      //.orderBy('timestamp', 'desc')
       .onSnapshot(async querySnapshot => {
         let messagesData: any[] = [];
 
@@ -103,7 +103,7 @@ const Message = ({navigation}: any) => {
     );
   };
   return (
-    <Box flex={1}>
+    <Box flex={1} safeArea>
       <AppHeader hasBack title="Messages" navigation={navigation} />
       <FlatList
         contentContainerStyle={conversation.length <= 0 && styles.empty}

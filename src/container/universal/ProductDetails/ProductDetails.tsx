@@ -82,7 +82,7 @@ const ProductDetails = ({navigation, route}: any) => {
   };
 
   return (
-    <Box flex={1}>
+    <Box flex={1} safeArea>
       <AppHeader
         isCartVisible={isEqual(userType, USER_BUYER)}
         hasBack
