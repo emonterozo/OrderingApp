@@ -13,6 +13,7 @@ import {
   Cart,
   Chat,
   Message,
+  Payment,
 } from '../container';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -47,6 +48,7 @@ const BuyerScreen = () => {
       <SellerStack.Screen name="Chat" component={Chat} />
       <SellerStack.Screen name="Message" component={Message} />
       <SellerStack.Screen name="Orders" component={Orders} />
+      <SellerStack.Screen name="Payment" component={Payment} />
     </BuyerStack.Navigator>
   );
 };

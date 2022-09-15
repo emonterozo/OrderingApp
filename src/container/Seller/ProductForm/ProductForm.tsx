@@ -110,7 +110,7 @@ const ProductForm = ({navigation, route}: any) => {
           ) {
             // will get images does not change
             const retainImages = images.filter(
-              image => !isValidURL(image) && !isEmpty(image),
+              image => isValidURL(image) && !isEmpty(image),
             );
             newImages = [...imagesUrl, ...retainImages];
           }

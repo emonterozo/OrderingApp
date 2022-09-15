@@ -11,6 +11,7 @@ import Map from './universal/Map/Map';
 import Cart from './Buyer/Cart/Cart';
 import Chat from './universal/Chat/Chat';
 import Message from './universal/Message/Message';
+import Payment from './Buyer/Payment/Payment';
 
 export {
   Home,
@@ -26,4 +27,5 @@ export {
   Cart,
   Chat,
   Message,
+  Payment,
 };

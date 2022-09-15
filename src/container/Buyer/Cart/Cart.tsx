@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   AspectRatio,
   Box,
@@ -29,7 +29,7 @@ import {AppHeader} from '../../../components';
 import {STATUS} from '../../../utils/constant';
 import {ICart} from '../../types/types';
 
-const Cart = ({navigation}: any) => {
+const Cart = ({navigation, route}: any) => {
   const {cart, setCart, user} = useContext(GlobalContext);
   let row: Array<any> = [];
   let prevOpenedRow: any;
@@ -146,39 +146,101 @@ const Cart = ({navigation}: any) => {
   };
 
   const handlePressCheckout = async () => {
-    let count = 0;
+    const shippingFee = 6;
+    let total = 0;
 
-    cart.map((item, index) => {
-      firestore()
-        .collection('orders')
-        .add({
-          buyer_id: user.id,
-          buyer_name: user.name,
-          product_id: item.id,
-          quantity: item.quantity,
-          status: STATUS.PROCESSING,
-          store_id: item.store_id,
-          timestamp: new Date(),
-          unit_price: item.price,
-        })
-        .then(async () => {
-          count = index;
-          if (count === cart.length - 1) {
-            setCart([]);
-            storeCart([]);
-            const seller = await firestore()
-              .collection('sellers')
-              .doc(cart[0].store_id)
-              .get();
-            sendPushNotification(
-              seller.data().fcm_token,
-              'New Order',
-              `Your received new order's from ${user.name}`,
-            );
-          }
-        });
+    const items = cart.map(item => {
+      const itemPrice = parseFloat(item.price) * item.quantity;
+      total += itemPrice;
+      return {
+        name: item.name,
+        description: item.description,
+        quantity: item.quantity,
+        price: item.price,
+        tax: '0',
+        sku: item.id,
+        currency: 'USD',
+      };
     });
+
+    const paymentDetails = {
+      intent: 'sale',
+      payer: {
+        payment_method: 'paypal',
+      },
+      transactions: [
+        {
+          amount: {
+            currency: 'USD',
+            total: total + shippingFee,
+            details: {
+              shipping: shippingFee,
+              subtotal: total,
+              shipping_discount: '0',
+              insurance: '0',
+              handling_fee: '0',
+              tax: '0',
+            },
+          },
+          description: `${new Date()}, This is payment for the store ${
+            cart[0].store_id
+          }.`,
+          payment_options: {
+            allowed_payment_method: 'IMMEDIATE_PAY',
+          },
+          item_list: {
+            items: items,
+          },
+        },
+      ],
+      redirect_urls: {
+        return_url: 'https://example.com/',
+        cancel_url: 'https://example.com/',
+      },
+    };
+
+    navigation.navigate('Payment', {paymentDetails: paymentDetails});
   };
+
+  useEffect(() => {
+    if (route.params) {
+      const {isPaymentSuccess} = route.params;
+      if (isPaymentSuccess) {
+        let count = 0;
+
+        cart.map((item, index) => {
+          firestore()
+            .collection('orders')
+            .add({
+              buyer_id: user.id,
+              buyer_name: user.name,
+              product_id: item.id,
+              quantity: item.quantity,
+              status: STATUS.PROCESSING,
+              store_id: item.store_id,
+              timestamp: new Date(),
+              unit_price: item.price,
+            })
+            .then(async () => {
+              count = index;
+              if (count === cart.length - 1) {
+                setCart([]);
+                storeCart([]);
+                const seller = await firestore()
+                  .collection('sellers')
+                  .doc(cart[0].store_id)
+                  .get();
+                sendPushNotification(
+                  seller.data().fcm_token,
+                  'New Order',
+                  `Your received new order's from ${user.name}`,
+                );
+              }
+            });
+        });
+      }
+    }
+  }, [route]);
 
   return (
     <Box flex={1}>
