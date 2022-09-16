@@ -11,6 +11,7 @@ const App = () => {
   const [userType, setUserType] = useState('');
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
+  const [selectedStore, setSelectedStore] = useState(null);
 
   useEffect(() => {
     // will get message in foreground state
@@ -47,6 +48,8 @@ const App = () => {
     setUser,
     cart,
     setCart,
+    selectedStore,
+    setSelectedStore,
   };
 
   return (

@@ -42,13 +42,16 @@ interface IStore {
   name: string;
   address: string;
   coordinate: ICoordinate;
+  fcmToken: string;
+  paypalUsername: string;
+  paypalPassword: string;
 }
 
 const Map = ({navigation, route}: any) => {
-  const {user, setUser, userType} = useContext(GlobalContext);
+  const {user, setUser, userType, selectedStore, setSelectedStore} =
+    useContext(GlobalContext);
   const [currentLocation, setCurrentLocation] = useState<ICoordinate>(null);
   const [stores, setStores] = useState<IStore[]>([]);
-  const [selectedStore, setSelectedStore] = useState<IStore>(null);
   const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(isEmpty(user.name));
   const [name, setName] = useState('');
@@ -71,7 +74,12 @@ const Map = ({navigation, route}: any) => {
         querySnapshot.forEach(documentSnapshot => {
           if (!isNull(documentSnapshot.data().store)) {
             holder.push({
-              ...documentSnapshot.data().store,
+              name: documentSnapshot.data().store.name,
+              address: documentSnapshot.data().store.address,
+              coordinate: documentSnapshot.data().store.coordinate,
+              paypalUsername: documentSnapshot.data().store.paypal_username,
+              paypalPassword: documentSnapshot.data().store.paypal_password,
+              fcmToken: documentSnapshot.data().fcm_token,
               id: documentSnapshot.id,
             });
             coordinates.push({
@@ -294,7 +302,7 @@ const Map = ({navigation, route}: any) => {
             <Button
               onPress={() => {
                 setIsSheetVisible(false);
-                navigation.navigate('Store', {store: selectedStore});
+                navigation.navigate('Store');
               }}>
               View Store
             </Button>

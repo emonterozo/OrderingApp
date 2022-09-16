@@ -30,7 +30,7 @@ import {STATUS} from '../../../utils/constant';
 import {ICart} from '../../types/types';
 
 const Cart = ({navigation, route}: any) => {
-  const {cart, setCart, user} = useContext(GlobalContext);
+  const {cart, setCart, user, selectedStore} = useContext(GlobalContext);
   let row: Array<any> = [];
   let prevOpenedRow: any;
 
@@ -223,15 +223,13 @@ const Cart = ({navigation, route}: any) => {
             })
             .then(async () => {
               count = index;
+
               if (count === cart.length - 1) {
                 setCart([]);
                 storeCart([]);
-                const seller = await firestore()
-                  .collection('sellers')
-                  .doc(cart[0].store_id)
-                  .get();
+
                 sendPushNotification(
-                  seller.data().fcm_token,
+                  selectedStore.fcmToken,
                   'New Order',
                   `Your received new order's from ${user.name}`,
                 );

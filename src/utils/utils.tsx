@@ -84,7 +84,6 @@ export const sendPushNotification = async (
       body: JSON.stringify(message),
     });
     response = await response.json();
-    console.log('response ', response);
   } catch (error) {
     console.log('error ', error);
   }

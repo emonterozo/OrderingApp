@@ -1,38 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {
-  AspectRatio,
-  Box,
-  Fab,
-  FlatList,
-  Heading,
-  Icon,
-  IconButton,
-  Image,
-  Pressable,
-  Stack,
-  Text,
-} from 'native-base';
+import React, {useContext, useEffect, useState} from 'react';
+import {Box, Fab, FlatList, Icon, Text} from 'native-base';
 import firestore from '@react-native-firebase/firestore';
-
-import {AppHeader, Product} from '../../../components';
-import {isNull} from 'lodash';
 import {StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useIsFocused} from '@react-navigation/native';
 
-const Store = ({navigation, route}) => {
-  const {store} = route.params;
+import {AppHeader, Product} from '../../../components';
+import GlobalContext from '../../../config/context';
+
+const Store = ({navigation}) => {
+  const {selectedStore} = useContext(GlobalContext);
   const [products, setProducts] = useState([]);
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    getProducts();
-  }, []);
-
-  const getProducts = () => {
     firestore()
       .collection('products')
-      .where('store_id', '==', store.id)
+      .where('store_id', '==', selectedStore.id)
       .get()
       .then(querySnapshot => {
         let holder = [];
@@ -44,12 +28,12 @@ const Store = ({navigation, route}) => {
         });
         setProducts(holder);
       });
-  };
+  }, []);
 
   return (
     <Box flex={1}>
       <AppHeader
-        title={store.name}
+        title={selectedStore?.name}
         hasBack
         navigation={navigation}
         isCartVisible

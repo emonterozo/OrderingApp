@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Box, Center, Spinner, VStack, Text, Alert, Button} from 'native-base';
 import {decode, encode} from 'base-64';
 import {WebView} from 'react-native-webview';
@@ -6,9 +6,10 @@ import qs from 'qs';
 
 import {AppHeader} from '../../../components';
 import axios from 'axios';
-import {PAYPAL_AUTH} from '../../../config/config';
+import GlobalContext from '../../../config/context';
 
 const Payment = ({navigation, route}) => {
+  const {selectedStore} = useContext(GlobalContext);
   const {paymentDetails} = route.params;
   const [paypalUrl, setPaypalUrl] = useState('');
   const [accessToken, setAccessToken] = useState('');
@@ -36,6 +37,10 @@ const Payment = ({navigation, route}) => {
       const data = {
         grant_type: 'client_credentials',
       };
+      const auth = {
+        username: selectedStore.paypalUsername,
+        password: selectedStore.paypalPassword,
+      };
 
       const options = {
         method: 'post',
@@ -45,7 +50,7 @@ const Payment = ({navigation, route}) => {
         },
 
         data: qs.stringify(data),
-        auth: PAYPAL_AUTH,
+        auth: auth,
         url,
       };
 
@@ -72,7 +77,6 @@ const Payment = ({navigation, route}) => {
                 data => data.rel === 'approval_url',
               ).href;
 
-              console.log('response', links);
               setPaypalUrl(approvalUrl);
             })
             .catch(err => {

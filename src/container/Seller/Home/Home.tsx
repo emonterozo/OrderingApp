@@ -26,16 +26,22 @@ import {IProduct} from '../../types/types';
 const schema = Yup.object().shape({
   name: Yup.string().required('This field is required'),
   address: Yup.string().required('This field is required'),
+  paypalUsername: Yup.string().required('This field is required'),
+  paypalPassword: Yup.string().required('This field is required'),
 });
 
 const initial = {
   name: '',
   address: '',
+  paypal_username: '',
+  paypal_password: '',
 };
 
 interface IValues {
   name: string;
   address: string;
+  paypal_username: string;
+  paypal_password: string;
 }
 
 const Home = ({navigation}: any) => {
@@ -114,6 +120,30 @@ const Home = ({navigation}: any) => {
                       ml="3"
                       leftIcon={<WarningOutlineIcon size="xs" />}>
                       {errors.address}
+                    </FormControl.ErrorMessage>
+                  </FormControl>
+                  <FormControl mt="3" isInvalid={'paypal_username' in errors}>
+                    <FormControl.Label>Paypal App Username</FormControl.Label>
+                    <Input
+                      value={values.paypal_username}
+                      onChangeText={handleChange('paypal_username')}
+                    />
+                    <FormControl.ErrorMessage
+                      ml="3"
+                      leftIcon={<WarningOutlineIcon size="xs" />}>
+                      {errors.paypal_username}
+                    </FormControl.ErrorMessage>
+                  </FormControl>
+                  <FormControl mt="3" isInvalid={'paypal_password' in errors}>
+                    <FormControl.Label>Paypal App Password</FormControl.Label>
+                    <Input
+                      value={values.paypal_password}
+                      onChangeText={handleChange('paypal_password')}
+                    />
+                    <FormControl.ErrorMessage
+                      ml="3"
+                      leftIcon={<WarningOutlineIcon size="xs" />}>
+                      {errors.paypal_password}
                     </FormControl.ErrorMessage>
                   </FormControl>
                 </Modal.Body>
