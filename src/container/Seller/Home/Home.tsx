@@ -26,8 +26,8 @@ import {IProduct} from '../../types/types';
 const schema = Yup.object().shape({
   name: Yup.string().required('This field is required'),
   address: Yup.string().required('This field is required'),
-  paypalUsername: Yup.string().required('This field is required'),
-  paypalPassword: Yup.string().required('This field is required'),
+  paypal_username: Yup.string().required('This field is required'),
+  paypal_password: Yup.string().required('This field is required'),
 });
 
 const initial = {

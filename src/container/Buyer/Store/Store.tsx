@@ -62,7 +62,10 @@ const Store = ({navigation}) => {
             />
           }
           onPress={() =>
-            navigation.navigate('Chat', {toUser: store.id, name: store.name})
+            navigation.navigate('Chat', {
+              toUser: selectedStore.id,
+              name: selectedStore.name,
+            })
           }
         />
       )}
